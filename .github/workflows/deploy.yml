@@ -1,0 +1,32 @@
+name: PHP Composer
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+# 秘密鍵を設置
+    - name: ssh key generate
+      run: |
+          mkdir -p ~/.ssh/
+          #rm ~/.ssh/known_hosts
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      # ssh rsync実行
+      # -a コピー元のディレクトリを再帰的にオーナー・グループ・パーミッション・タイムスタンプをそのままコピーします。
+      # -h でファイルサイズの視認性をよくする。
+      # -v 詳細を出力する。
+      # -z 圧縮転送
+      # -e ssh指定
+    - name: Deploy
+      run: rsync -ahvz -e "ssh -i ~/.ssh/id_rsa -p ${{ secrets.PORT }} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ./ipa/ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/xs900764/

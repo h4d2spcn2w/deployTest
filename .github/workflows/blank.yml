@@ -2,7 +2,7 @@ name: チェックアウトしてからscpして転送先サーバでssh実行
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ master ]
 
 jobs:
   build:
